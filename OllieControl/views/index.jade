@@ -1,0 +1,118 @@
+﻿extends layout
+block head
+    script(src='/javascripts/ollieremoter.js')
+block content
+  h1(align="center")= title
+  .container
+    .row
+        .col-sm-2 
+            button(onclick='init()') Init
+        .col-sm-2 
+            button(onclick='shutdown()') Shutdown
+        .col-sm-2 
+            button(onclick='findollies()') Find Ollies
+        .col-sm-4 
+            select#addresslist Ollie Addresses
+    p.lead
+    .row
+        .col-sm-5
+            canvas( id="joystick",width="250",height="250")
+    p.lead
+    .row
+        .col-sm-2 
+            button(onclick='spinner()') Spin
+        .col-sm-2
+            l speed
+            input(type="range", id="spinspeed",min="0" max="255" step="2" value="100")
+        .col-sm-2
+            l Clockwise
+            input(type="checkbox", id="clockwisespin" value="1" checked="true" ) 
+        .col-sm-3 
+            l time
+            select#spinstime
+                for item in [ '1', '2', '3', '4']
+                    if '1' == item
+                        option(selected="true") #{item}
+                    else
+                        option #{item}
+    p.lead
+    .row
+        .col-sm-2 
+            button(onclick='flasher()') Flash
+        .col-sm-3
+            l time
+            select#flashtime
+                for item in [ '1', '2', '3', '4']
+                    if '1' == item
+                        option(selected="true") #{item}
+                    else
+                        option #{item}
+    p.lead
+    .row
+        .col-sm-2 
+            button(onclick='roller()') Roll
+        .col-sm-2
+            l speed
+            input(type="range", id="rollspeed",min="0" max="255" step="2" value="100")
+        .col-sm-2
+            l direction
+            input(type="range", id="rolldirection",min="0" max="359" step="1" value="0")
+        .col-sm-4
+            l time
+            select#rolltime
+                for item in [ '0', '1', '2', '3', '4']
+                    if '1' == item
+                        option(selected="true") #{item}
+                    else
+                        option #{item}
+    p.lead
+    .row
+        .col-sm-2 
+            button(onclick='directmotor()') Direct Motor Control
+        .col-sm-4
+            .container
+                l Left
+                .row
+                    .col-md-5
+                        l Speed
+                        input(type="range", id="speedleft",min="0" max="255" step="2" value="100")
+                    .col-md-5
+                        l Forward
+                        input(type="checkbox", id="leftdir" checked="true" value="1")
+                p
+                l Right
+                .row
+                    .col-md-5
+                        l Speed
+                        input(type="range", id="speedright",min="0" max="255" step="2" value="100")
+                    .col-md-5
+                        l Forward
+                        input(type="checkbox", id="rightdir" checked="true" value="1") 
+        .col-sm-2
+            l time
+            select#spinstime
+                for item in [ '1', '2', '3', '4']
+                    if '1' == item
+                        option(selected="true") #{item}
+                    else
+                        option #{item}
+    p.lead
+    p.lead
+    .row
+        .col-md-2 
+            button(onclick='streamer()') Data Stream
+        .col-md-2
+            l Enable
+            select#streamerenable
+                for item in [ 'enable', 'disable']
+                    if 'enable' == item
+                        option(selected="true") #{item}
+                    else
+                        option #{item}
+        .col-md-1
+            l Position
+            input(type="checkbox", id="streampos" value="1" checked="true" ) 
+        .col-md-1
+            l Velocity
+            input(type="checkbox", id="streamvel" value="1" checked="true" ) 
+ 

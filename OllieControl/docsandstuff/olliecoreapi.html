@@ -1,0 +1,1156 @@
+﻿<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <link rel='stylesheet' id='sphero-styles-css' href='http://orbotix.wpengine.netdna-cdn.com/wp-content/themes/sphero/css/sphero.css?ver=1.01' type='text/css' media='all' />
+    <link rel='stylesheet' id='discover-styles-css' href='http://orbotix.wpengine.netdna-cdn.com/wp-content/themes/sphero/css/discover.css?ver=1.01' type='text/css' media='all' />
+    <link rel="stylesheet" href="http://orbotixinc.github.io/Sphero-Docs/css/sphero.docs.css">
+    <link rel="stylesheet" href="http://orbotixinc.github.io/Sphero-Docs/css/tomorrow-night.css">
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    <article class="doc-content">
+        <h3>Device ID 00h - The Core</h3>
+
+        <p>The Core Device encapsulates actions that are fundamental to all Orbotix devices.</p>
+
+        <h4>Ping - 01h</h4>
+
+        <h5>Command:</h5>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>DID</th>
+                    <th>CID</th>
+                    <th>SEQ</th>
+                    <th>DLEN</th>
+                    <th>CHK</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>00h</td>
+                    <td>01h</td>
+                    <td>
+                        &lt;any&gt;
+                    </td>
+                    <td>01h</td>
+                    <td>
+                        &lt;computed&gt;
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h5>Response:</h5>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>MRSP</th>
+                    <th>SEQ</th>
+                    <th>DLEN</th>
+                    <th>CHK</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>00h</td>
+                    <td>&lt;echoed&gt;</td>
+                    <td>01h</td>
+                    <td>
+                        &lt;computed&gt;
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <p>The Ping command is used to verify both a solid data link with the Client and that Sphero is awake and dispatching commands. Even though Ping is neither a set or get format command, it still enjoys a Simple Response.</p>
+
+        <h5>Note</h5>
+
+        <p>From here forward the redundant fields in both transmit and receive packets will be omitted for clarity; we assume the MRSP is 00h (for success), SEQ is echoed and CHK is computed correctly both ways.</p>
+
+        <h4>Get Versioning - 02h</h4>
+
+        <h5>Command</h5>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>DID</th>
+                    <th>CID</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>00h</td>
+                    <td>02h</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h5>Response:</h5>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>DLEN</th>
+                    <th>&lt;data&gt;</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>0Bh</td>
+                    <td>see below</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <p>The Get Versioning command returns a whole slew of software and hardware information. It’s useful if your Client Application requires a minimum version number of some resource within Sphero in order to operate. The data record structure is comprised of fields for each resource that encodes the version number according to the specified format.</p>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Byte index</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>RECV</td>
+                    <td>0</td>
+                    <td>This record version number, currently set to 02h. This will increase when more resources are added.</td>
+                </tr>
+                <tr>
+                    <td>MDL</td>
+                    <td>1</td>
+                    <td>Model number; currently 02h for Sphero</td>
+                </tr>
+                <tr>
+                    <td>HW</td>
+                    <td>2</td>
+                    <td>Hardware version code (ranges 1 through 9)</td>
+                </tr>
+                <tr>
+                    <td>MSA-ver</td>
+                    <td>3</td>
+                    <td>Main Sphero Application version byte</td>
+                </tr>
+                <tr>
+                    <td>MSA-rev</td>
+                    <td>4</td>
+                    <td>Main Sphero Application revision byte</td>
+                </tr>
+                <tr>
+                    <td>BL</td>
+                    <td>5</td>
+                    <td>Bootloader version in packed nibble format (i.e. 32h is version 3.2)</td>
+                </tr>
+                <tr>
+                    <td>BAS</td>
+                    <td>6</td>
+                    <td>orbBasic version in packed nibble format (i.e. 4.4)</td>
+                </tr>
+                <tr>
+                    <td>MACRO</td>
+                    <td>7</td>
+                    <td>Macro executive version in packed nibble format (4.4)</td>
+                </tr>
+                <tr>
+                    <td>API-maj</td>
+                    <td>8</td>
+                    <td>API major revision code this firmware implements</td>
+                </tr>
+                <tr>
+                    <td>API-min</td>
+                    <td>9</td>
+                    <td>API minor revision code this firmware implements</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h4>Control UART Tx Line – 03h</h4>
+
+        <h5>Command</h5>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>DID</th>
+                    <th>CID</th>
+                    <th>SEQ</th>
+                    <th>DLEN</th>
+                    <th>FLAG</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>00h</td>
+                    <td>03h</td>
+                    <td>&lt;any&gt;</td>
+                    <td>02h</td>
+                    <td>0 or 1</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h5>Response</h5>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Simple Response</th>
+                </tr>
+            </thead>
+        </table>
+
+        <p>This is a factory command that either enables or disables the CPU&#39;s UART transmit line so that another physically connected client can configure the Bluetooth module. The receive line is always listening, which is how you can re-enable the Tx line later. Or just reboot as this setting is not persistent.</p>
+
+        <h4>Set Device Name – 10h</h4>
+
+        <h5>Command</h5>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>DID</th>
+                    <th>CID</th>
+                    <th>SEQ</th>
+                    <th>DLEN</th>
+                    <th>&lt;data&gt;</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>00h</td>
+                    <td>10h</td>
+                    <td>&lt;any&gt;</td>
+                    <td>&lt;data&gt; + 01h</td>
+                    <td>text name</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h5>Response</h5>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Simple Response</th>
+                </tr>
+            </thead>
+        </table>
+
+        <p>This formerly reprogrammed the Bluetooth module to advertise with a different name, but this is no longer the case. This assigned name is held internally and produced as part of the Get Bluetooth Info service below. Names are clipped at 48 characters in length to support UTF-8 sequences; you can send something longer but the extra will be discarded. This field defaults to the Bluetooth advertising name.</p>
+
+        <p>To alter the Bluetooth advertising name from the standard Sphero-RGB pattern you will need to $$$ into the RN-42 within 60 seconds after power up, issue the command SN,mynewname and finish with r,1 to reboot the module.</p>
+
+        <h4>Get Bluetooth Info – 11h</h4>
+
+        <h5>Command</h5>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>DID</th>
+                    <th>CID</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>00h</td>
+                    <td>11h</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h5>Response</h5>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>DLEN</th>
+                    <th>&lt;data&gt;</th>
+                    <th>&lt;data&gt;</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>21h</td>
+                    <td>ASCII name</td>
+                    <td>ASCII BTA</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <p>This returns the textual name (in ASCII) that the Bluetooth module advertises. It also returns the BTA – Bluetooth Address – or MAC ID for this device. Both values are returned in ASCII and have field widths of 16 characters, with unused trailing characters set to 00h.</p>
+
+        <p>This is provided as a courtesy for Clients that have don’t have a method to interrogate their underlying Bluetooth stack for this information.</p>
+
+        <h4>Set Auto Reconnect – 12h</h4>
+
+        <h5>Command</h5>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>DID</th>
+                    <th>CID</th>
+                    <th>SEQ</th>
+                    <th>DLEN</th>
+                    <th>data 0</th>
+                    <th>data 1</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>00h</td>
+                    <td>12h</td>
+                    <td>&lt;any&gt;</td>
+                    <td>03h</td>
+                    <td>flag</td>
+                    <td>time</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h5>Response</h5>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Simple Response</th>
+                </tr>
+            </thead>
+        </table>
+
+        <p>This configures the control of the Bluetooth module in its attempt to automatically reconnect with the last mobile Apple device. This is a courtesy behavior since the Apple Bluetooth stack doesn&#39;t initiate automatic reconnection on its own.</p>
+
+        <p>The two parameters are simple: flag is 00h to disable or 01h to enable, and time is the number of seconds after power-up in which to enable auto reconnect mode. For example, if time = 30 then the module will be attempt reconnecting 30 seconds after waking up. (refer to RN-APL-EVAL pg. 7 for more info)</p>
+
+        <h4>Get Auto Reconnect – 13h</h4>
+
+        <h5>Command</h5>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>DID</th>
+                    <th>CID</th>
+                    <th>SEQ</th>
+                    <th>DLEN</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>00h</td>
+                    <td>13h</td>
+                    <td>&lt;any&gt;</td>
+                    <td>01h</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h5>Response</h5>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>DLEN</th>
+                    <th>data 0</th>
+                    <th>data 1</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>03h</td>
+                    <td>flag</td>
+                    <td>time</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <p>This returns the Bluetooth auto reconnect values as defined in the &quot;Set Auto Reconnect&quot; Command.</p>
+
+        <h4>Get Power State - 20h</h4>
+
+        <h5>Command</h5>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>DID</th>
+                    <th>CID</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>00h</td>
+                    <td>20h</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h5>Response</h5>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>DLEN</th>
+                    <th>&lt;data&gt;</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>09h</td>
+                    <td>see below</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <p>This returns the current power state and some additional parameters to the Client. They are detailed below.</p>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>offset</th>
+                    <th>name</th>
+                    <th>description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>00h</td>
+                    <td>RecVer</td>
+                    <td>Record version code – the following definition is for 01h</td>
+                </tr>
+                <tr>
+                    <td>01h</td>
+                    <td>Power State</td>
+                    <td>High-level state of the power system as concluded by the power manager: 01h = Battery Charging, 02h = Battery OK, 03h = Battery Low, 04h = Battery Critical</td>
+                </tr>
+                <tr>
+                    <td>02h</td>
+                    <td>BattVoltage</td>
+                    <td>Current battery voltage scaled in 100ths of a volt; 02EFh would be 7.51 volts (unsigned 16-bit value)</td>
+                </tr>
+                <tr>
+                    <td>04h</td>
+                    <td>NumCharges</td>
+                    <td>Number of battery recharges in the life of this Sphero (unsigned 16-bit value)</td>
+                </tr>
+                <tr>
+                    <td>06h</td>
+                    <td>TimeSinceChg</td>
+                    <td>Seconds awake since last recharge (unsigned 16-bit value)</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h4>Set Power Notification – 21h</h4>
+
+        <h5>Command</h5>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>DID</th>
+                    <th>CID</th>
+                    <th>SEQ</th>
+                    <th>DLEN</th>
+                    <th>data</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>00h</td>
+                    <td>21h</td>
+                    <td>&lt;any&gt;</td>
+                    <td>02h</td>
+                    <td>flag</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h5>Response</h5>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Simple Response</th>
+                </tr>
+            </thead>
+        </table>
+
+        <p>This enables Sphero to asynchronously notify the Client periodically with the power state or immediately when the power manager detects a state change. Timed notifications arrive every 10 seconds until they&#39;re explicitly disabled or Sphero is unpaired. The flag is as you would expect, 00h to disable and 01h to enable. This setting is volatile and therefore not retained across sleep cycles.</p>
+
+        <p>The complete power notification message is of the form:</p>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>SOP1</th>
+                    <th>SOP2</th>
+                    <th>CODE</th>
+                    <th>DLEN-MSB</th>
+                    <th>DLEN-LSB</th>
+                    <th>data</th>
+                    <th>CHK</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>FFh</td>
+                    <td>FEh</td>
+                    <td>01h</td>
+                    <td>00h</td>
+                    <td>02h</td>
+                    <td>state</td>
+                    <td>&lt;cmp&gt;</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <p>The power state byte mimics that of CID 20h above: 01h = Battery Charging, 02h = Battery OK, 03h = Battery Low, 04h = Battery Critical</p>
+
+        <h4>Sleep – 22h</h4>
+
+        <h5>Command</h5>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>DID</th>
+                    <th>CID</th>
+                    <th>SEQ</th>
+                    <th>DLEN</th>
+                    <th>Wakeup</th>
+                    <th>Macro</th>
+                    <th>orbBasic</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>00h</td>
+                    <td>22h</td>
+                    <td>&lt;any&gt;</td>
+                    <td>06h</td>
+                    <td>&lt;16-bit val&gt;</td>
+                    <td>&lt;val&gt;</td>
+                    <td>&lt;16-bit val&gt;</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h5>Response</h5>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Simple Response</th>
+                </tr>
+            </thead>
+        </table>
+
+        <p>This command puts Sphero to sleep immediately. There are three optional parameters that program the robot for future actions:</p>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>name</th>
+                    <th>description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Wakeup</td>
+                    <td>The number of seconds for Sphero to sleep for and then automatically reawaken. Zero does not program a wakeup interval, so he sleeps forever. FFFFh attempts to put him into deep sleep (if supported in hardware) and returns an error if the hardware does not support it.</td>
+                </tr>
+                <tr>
+                    <td>Macro</td>
+                    <td>If non-zero, Sphero will attempt to run this macro ID upon wakeup.</td>
+                </tr>
+                <tr>
+                    <td>orbBasic</td>
+                    <td>If non-zero, Sphero will attempt to run an orbBasic program in Flash from this line number.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h4>Get Voltage Trip Points – 23h</h4>
+
+        <h5>Command</h5>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>DID</th>
+                    <th>CID</th>
+                    <th>SEQ</th>
+                    <th>DLEN</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>00h</td>
+                    <td>23h</td>
+                    <td>&lt;any&gt;</td>
+                    <td>01h</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h5>Response</h5>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>DLEN</th>
+                    <th>&lt;Vlow&gt;</th>
+                    <th>&lt;Vcrit&gt;</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>05h</td>
+                    <td>&lt;16-bit val&gt;</td>
+                    <td>&lt;16-bit val&gt;</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <p>This returns the voltage trip points for what Sphero considers Low battery and Critical battery. The values are expressed in 100ths of a volt, so the defaults of 7.00V and 6.50V respectively are returned as 700 and 650.</p>
+
+        <h4>Set Voltage Trip Points – 24h</h4>
+
+        <h5>Command</h5>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>DID</th>
+                    <th>CID</th>
+                    <th>SEQ</th>
+                    <th>DLEN</th>
+                    <th>&lt;Vlow&gt;</th>
+                    <th>&lt;Vcrit&gt;</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>00h</td>
+                    <td>24h</td>
+                    <td>&lt;any&gt;</td>
+                    <td>05h</td>
+                    <td>&lt;16-bit val&gt;</td>
+                    <td>&lt;16-bit val&gt;</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h5>Response</h5>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Simple Response</th>
+                </tr>
+            </thead>
+        </table>
+
+        <p>This assigns the voltage trip points for Low and Critical battery voltages. The values are specified in 100ths of a volt and the limitations on adjusting these away from their defaults are:</p>
+
+        <ul>
+            <li>Vlow must be in the range 675 to 725 (±25)</li>
+            <li>Vcrit must be in the range 625 to 675 (±25)</li>
+            <li>There must be 0.25V of separation between the two values</li>
+        </ul>
+
+        <p>Shifting these values too low could result in very little warning before Sphero forces himself to sleep, depending on the age and history of the battery pack. So be careful.</p>
+
+        <h4>Set Inactivity Timeout – 25h</h4>
+
+        <h5>Command</h5>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>DID</th>
+                    <th>CID</th>
+                    <th>SEQ</th>
+                    <th>DLEN</th>
+                    <th>TIME</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>00h</td>
+                    <td>25h</td>
+                    <td>&lt;any&gt;</td>
+                    <td>03h</td>
+                    <td>&lt;16-bit val&gt;</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h5>Response</h5>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Simple Response</th>
+                </tr>
+            </thead>
+        </table>
+
+        <p>To save battery power, Sphero normally goes to sleep after a period of inactivity. From the factory this value is set to 600 seconds (10 minutes) but this API command can alter it to any value of 60 seconds or greater.</p>
+
+        <p>The inactivity timer is reset every time an API command is received over Bluetooth or a shell command is executed in User Hack mode. In addition, the timer is continually reset when a macro is running unless the MF<em>STEALTH flag is set, and the same for orbBasic unless the BF</em>STEALTH flag is set.</p>
+
+        <h4>Jump To Bootloader – 30h</h4>
+
+        <h5>Command</h5>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>DID</th>
+                    <th>CID</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>00h</td>
+                    <td>30h</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h5>Response</h5>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Simple Response</th>
+                </tr>
+            </thead>
+        </table>
+
+        <p>This command requests a jump into the Bootloader to prepare for a firmware download. It always succeeds, because you can always stop where you are, shut everything down and transfer execution. All commands after this one must comply with the Bootloader Protocol Specification, which is a separate document.</p>
+
+        <p>Note that just because you can always vector into the Bootloader, it doesn&#39;t mean you can get anything done. Further details are explained in the associated document but in short: the Bootloader doesn&#39;t implement the entire Core Device message set and if the battery is deemed too low to execute reflashing operations, all you can do is return to the Main Application.</p>
+
+        <h4>Perform Level 1 Diagnostics – 40h</h4>
+
+        <h5>Command</h5>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>DID</th>
+                    <th>CID</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>00h</td>
+                    <td>40h</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h5>Response 1</h5>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Simple Response</th>
+                </tr>
+            </thead>
+        </table>
+
+        <h5>Response 2</h5>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>SOP1</th>
+                    <th>SOP2</th>
+                    <th>CODE</th>
+                    <th>DLEN-MSB</th>
+                    <th>DLEN_LSB</th>
+                    <th>data</th>
+                    <th>CHK</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>FFh</td>
+                    <td>FEh</td>
+                    <td>02h</td>
+                    <td>&lt;msb&gt;</td>
+                    <td>&lt;lsb&gt;</td>
+                    <td>&lt;data&gt;</td>
+                    <td>&lt;cmp&gt;</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <p>This is a developer-level command to help diagnose aberrant behavior. Most system counters, process flags, and system states are decoded into human readable ASCII. There are two responses to this command: a Simple Response followed by a large async message containing the results of the diagnostic tests. As of FW version 0.99, the answer was well over 1K in length and similar to:</p>
+        <div class="highlight">
+            <pre><code class="language-text" data-lang="text">[System]
+Mode F, Boot code 12
+0 rechrg, 32 min
+since last, 0:51
+alive
+Cold:13, Warm:0,
+Wakeup:0, NMI:0,
+Hard:0
+Dist rolled: 0, Vbatt
+7.85, state: OK
+SensorsHthy:1
+BTError:0
+AuthOK:1
+Stabilize:1
+TestPin:0
+AutoRN:0
+Mac:0
+Bootldr=1.7
+MA=0.98
+Board=2
+OrbBasic=0.8
+MacExec=2
+CB=111
+AutoRecon En=1
+AutoReconDel=0
+ClientTimeOut=300
+WakeUpSec=0
+[Network]
+Rx good:7, bad:1,
+Tx:780
+Rx overruns:0, Tx:0
+Dev name:Sphero-OWG,
+BTA:0006664440B8
+BTver:Ver 5.36 IAP
+11/04/11
+[Sensors]
+Fail: 0 Loc: 0 Code:
+0
+[Accel]
+Xsc=0.0039 Ysc=0.0040
+Zsc=0.0039
+Xb=-0.0078 Yb=0.0010
+Zb=0.0552
+[Gyro]
+Xsc=0.0680 Ysc=0.0683
+Zsc=0.0680
+Xb=-12.3322 Yb=-
+10.2964 Zb=-28.3654
+Temp=35
+Therm: Xb1=-11.9700
+Xb2=-37.6833 Yb1=-
+10.0140 Yb2=-30.0675
+Zb1=-29.7397
+Zb2=67.8367
+Tmp1=34 Tmp2=105
+Xsl=-0.3622
+GyroAdjCnt=0 
+Xint=0.3434 Ysl=-
+0.2824 Yint=-0.4109
+Zsl=1.3743 Zint=-
+76.4665
+[Control]
+Pitch P=60.000
+D=50.000
+I=0.200 D=100.000
+Roll P=21.000 I=0.300
+D=1200.000 
+RotRate=0.228 
+GTtr=0x1 
+MinClks:777
+Yaw P=90.000 I=0.230
+[Test Res]
+PCBAtr=0x3ff Stn=7
+AGtr=0x1 Stn=1
+[Idle loop]
+MaxClks:73987
+MinFreq:51875
+MaxFreq:104952
+CPU 56% idle
+</code></pre>
+        </div>
+        <h4>Perform Level 2 Diagnostics – 41h</h4>
+
+        <h5>Command</h5>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>DID</th>
+                    <th>CID</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>00h</td>
+                    <td>41h</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h5>Response</h5>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>See below</th>
+                </tr>
+            </thead>
+        </table>
+
+        <p>This is a developers-only command to help diagnose aberrant behavior. It is much less informative than the Level 1 command but it is in binary format and easier to parse. Here is the layout of the data record which is currently 58h bytes long:</p>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Offset</th>
+                    <th>Name</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>00h</td>
+                    <td>RecVer</td>
+                    <td>Record version code &#x2013; the following definition is for 01h</td>
+                </tr>
+                <tr>
+                    <td>02h</td>
+                    <td>&lt;empty&gt;</td>
+                    <td>Reserved</td>
+                </tr>
+                <tr>
+                    <td>03h</td>
+                    <td>Rx_Good</td>
+                    <td>Good packets received (unsigned 32-bit value)</td>
+                </tr>
+                <tr>
+                    <td>07h</td>
+                    <td>Rx_Bad_DID</td>
+                    <td>Packets with a bad Device ID (unsigned 32-bit value)</td>
+                </tr>
+                <tr>
+                    <td>0Bh</td>
+                    <td>Rx_Bad_DLEN</td>
+                    <td>Packets with a bad data length (unsigned 32-bit value)</td>
+                </tr>
+                <tr>
+                    <td>0Fh</td>
+                    <td>Rx_Bad_CID</td>
+                    <td>Packets with a bad Command ID (unsigned 32-bit value)</td>
+                </tr>
+                <tr>
+                    <td>13h</td>
+                    <td>Rx_Bad_CHK</td>
+                    <td>Packets with a bad checksum (unsigned 32-bit value)</td>
+                </tr>
+                <tr>
+                    <td>17h</td>
+                    <td>Rx_Buff_Ovr</td>
+                    <td>Receive buffer overruns (unsigned 32-bit value)</td>
+                </tr>
+                <tr>
+                    <td>1Bh</td>
+                    <td>Tx_Msgs</td>
+                    <td>Messages transmitted (unsigned 32-bit value)</td>
+                </tr>
+                <tr>
+                    <td>1Fh</td>
+                    <td>Tx_Buff_Ovr</td>
+                    <td>Transmit buffer overruns (unsigned 32-bit value)</td>
+                </tr>
+                <tr>
+                    <td>23h</td>
+                    <td>LastBootReason</td>
+                    <td>Reason for last boot (8-bit value)</td>
+                </tr>
+                <tr>
+                    <td>24h</td>
+                    <td>BootCounters</td>
+                    <td>16 different counts of boot reasons</td>
+                </tr>
+                <tr>
+                    <td>44h</td>
+                    <td>&lt;empty&gt;</td>
+                    <td>Reserved</td>
+                </tr>
+                <tr>
+                    <td>46h</td>
+                    <td>ChargeCount</td>
+                    <td>Charge cycles (unsigned 16-bit value)</td>
+                </tr>
+                <tr>
+                    <td>48h</td>
+                    <td>SecondsSinceCharge</td>
+                    <td>Awake time in seconds since last charge (unsigned 16-bit value)</td>
+                </tr>
+                <tr>
+                    <td>4Ah</td>
+                    <td>SecondsOn</td>
+                    <td>Life awake time in seconds (unsigned 32-bit value)</td>
+                </tr>
+                <tr>
+                    <td>4Eh</td>
+                    <td>DistanceRolled</td>
+                    <td>Distance rolled (unsigned 32-bit value)</td>
+                </tr>
+                <tr>
+                    <td>52h</td>
+                    <td>Sensor Failures</td>
+                    <td>Count of I2C bus failures (unsigned 16-bit value)</td>
+                </tr>
+                <tr>
+                    <td>54h</td>
+                    <td>Gyro Adjust Count</td>
+                    <td>Lifetime count of automatic GACs (unsigned 32-bit value)</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h4>Clear Counters – 42h</h4>
+
+        <h5>Command</h5>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>DID</th>
+                    <th>CID</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>00h</td>
+                    <td>42h</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h5>Response</h5>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Simple Response</th>
+                </tr>
+            </thead>
+        </table>
+
+        <p>This is a developers-only command to clear the various system counters described in command 41h. It is denied when Sphero is in Normal mode.</p>
+
+        <h4>Assign Time Value – 50h</h4>
+
+        <h5>Command</h5>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>DID</th>
+                    <th>CID</th>
+                    <th>SEQ</th>
+                    <th>DLEN</th>
+                    <th>data</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>00h</td>
+                    <td>50h</td>
+                    <td>&lt;any&gt;</td>
+                    <td>05h</td>
+                    <td>32-bit val</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h5>Response</h5>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Simple Response</th>
+                </tr>
+            </thead>
+        </table>
+
+        <p>Sphero contains a 32-bit counter that increments every millisecond. It has no absolute temporal meaning, just a relative one. This command assigns the counter a specific value for subsequent sampling. Though it starts at zero when Sphero wakes up, assigning it too high of a value with this command could cause it to roll over.</p>
+
+        <h4>Poll Packet Times – 51h</h4>
+
+        <h5>Command</h5>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>DID</th>
+                    <th>CID</th>
+                    <th>SEQ</th>
+                    <th>DLEN</th>
+                    <th>Client Tx Time</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>00h</td>
+                    <td>51h</td>
+                    <td>&lt;any&gt;</td>
+                    <td>05h</td>
+                    <td>32-bit val</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h5>Response</h5>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>DLEN</th>
+                    <th>Client Tx time, T1</th>
+                    <th>Sphero Rx time, T2</th>
+                    <th>Sphero Tx time, T3</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>0Dh</td>
+                    <td>32-bit value (echoed)</td>
+                    <td>32-bit value</td>
+                    <td>32-bit value</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <p>This command helps the Client application profile the transmission and processing latencies in Sphero so that a relative synchronization of timebases can be performed. This technique is based upon the scheme in the Network Time Protocol (RFC 5905) and allows the Client to reconcile time stamped messages from Sphero to its own time stamped events. In the following discussion, each 32-bit value is a count of milliseconds from some reference within the device.</p>
+
+        <p>The scheme is as follows: the Client sends the command with the Client Tx time (T1) filled in. Upon receipt of the packet, the command processor in Sphero copies that time into the response packet and places the current value of the millisecond counter into the Sphero Rx time field (T2). Just before the transmit engine streams it into the Bluetooth module, the Sphero Tx time value (T3) is filled in. If the Client then records the time at which the response is received (T4) the relevant time segments can be computed from the four time stamps T1-T4:</p>
+
+        <ul>
+            <li>
+                The value offset represents the maximum-likelihood time offset of the Client clock to Sphero&#39;s system clock.
+                <code>offset = 1/2 * [(T2 - T1) + (T3 - T4)]</code>
+            </li>
+            <li>
+                The value delay represents the round-trip delay between the Client and Sphero:
+                <code>delay = (T4 - T1) - (T3 - T2)</code>
+            </li>
+        </ul>
+
+    </article>
+
+</body>
+</html>

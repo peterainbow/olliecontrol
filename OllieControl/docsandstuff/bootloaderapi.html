@@ -1,0 +1,2441 @@
+﻿<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <link rel='stylesheet' id='sphero-styles-css' href='http://orbotix.wpengine.netdna-cdn.com/wp-content/themes/sphero/css/sphero.css?ver=1.01' type='text/css' media='all' />
+    <link rel='stylesheet' id='discover-styles-css' href='http://orbotix.wpengine.netdna-cdn.com/wp-content/themes/sphero/css/discover.css?ver=1.01' type='text/css' media='all' />
+        <link rel="stylesheet" href="http://orbotixinc.github.io/Sphero-Docs/css/sphero.docs.css">
+    <link rel="stylesheet" href="http://orbotixinc.github.io/Sphero-Docs/css/tomorrow-night.css">
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    <article class="doc-content">
+        <h3>Device ID 01h – Bootloader</h3>
+
+        <p>Communication with the Bootloader is thoroughly explained in its own document, so please refer to it for all the details. Note that the &quot;Jump To Bootloader&quot; command is specified in DID 00h, the Core.</p>
+
+        <h3>Device ID 02h – Sphero</h3>
+
+        <p>These commands are specific to the features that Sphero offers.</p>
+
+        <h4>Set Heading – 01h</h4>
+
+        <h5>Command</h5>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>DID</th>
+                    <th>CID</th>
+                    <th>SEQ</th>
+                    <th>DLEN</th>
+                    <th>HEADING</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>02h</td>
+                    <td>01h</td>
+                    <td>&lt;any&gt;</td>
+                    <td>03h</td>
+                    <td>16-bit val</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h5>Response</h5>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Simple Response</th>
+                </tr>
+            </thead>
+        </table>
+
+        <p>This allows the smartphone client to adjust the orientation of Sphero by commanding a new reference heading in degrees, which ranges from 0 to 359. You will see the ball respond immediately to this command if stabilization is enabled.</p>
+
+        <p>In FW version 3.10 and later this also clears the maximum value counters for the rate gyro, effectively re-enabling the generation of an async message alerting the client to this event.</p>
+
+        <h4>Set Stabilization – 02h</h4>
+
+        <h5>Command</h5>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>DID</th>
+                    <th>CID</th>
+                    <th>SEQ</th>
+                    <th>DLEN</th>
+                    <th>FLAG</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>02h</td>
+                    <td>02h</td>
+                    <td>&lt;any&gt;</td>
+                    <td>02h</td>
+                    <td>&lt;bool&gt;</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h5>Response</h5>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Simple Response</th>
+                </tr>
+            </thead>
+        </table>
+
+        <p>This turns on or off the internal stabilization of Sphero, in which the IMU is used to match the ball&#39;s orientation to its various set points. The flag value is as you would expect, 00h for off and 01h for on. Stabilization is enabled by default when Sphero powers up. You will want to disable stabilization when using Sphero as an external input controller or even to save battery power during testing that doesn&#39;t involve movement (orbBasic, etc.)</p>
+
+        <p>An error is returned if the sensor network is dead; without sensors the IMU won&#39;t operate and thus there is no feedback to control stabilization.</p>
+
+        <h4>Set Rotation Rate – 03h</h4>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>DID</th>
+                    <th>CID</th>
+                    <th>SEQ</th>
+                    <th>DLEN</th>
+                    <th>RATE</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>02h</td>
+                    <td>03h</td>
+                    <td>&lt;any&gt;</td>
+                    <td>02h</td>
+                    <td>&lt;value&gt;</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h5>Response</h5>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Simple Response</th>
+                </tr>
+            </thead>
+        </table>
+
+        <p>This allows you to control the rotation rate that Sphero will use to meet new heading commands (DID 02h, CID 01h). A lower value offers better control but with a larger turning radius. A higher value will yield quick turns but Sphero may roll over on itself and lose control.</p>
+
+        <p>The commanded value is in units of 0.784 degrees/sec. So, setting a value of C8h will set the rotation rate to 157 degrees/sec. A value of 255 jumps to the maximum (currently 400 degrees/sec). A value of zero doesn&#39;t make much sense so it&#39;s interpreted as 1, the minimum.</p>
+
+        <h4>Set Application Configuration Block – 04h</h4>
+
+        <h5>Command</h5>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>DID</th>
+                    <th>CID</th>
+                    <th>SEQ</th>
+                    <th>DLEN</th>
+                    <th>DATA</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>02h</td>
+                    <td>04h</td>
+                    <td>&lt;any&gt;</td>
+                    <td>21h</td>
+                    <td>&lt;20h bytes&gt;</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h5>Response</h5>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Simple Response</th>
+                </tr>
+            </thead>
+        </table>
+
+        <p>This allows you to write a 32 byte block of data from the configuration block that is set aside for exclusive use by applications. The Sphero firmware does not interpret it on the way in or out.</p>
+
+        <h4>Get Application Configuration Block – 05h</h4>
+
+        <h5>Command</h5>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>DID</th>
+                    <th>CID</th>
+                    <th>SEQ</th>
+                    <th>DLEN</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>02h</td>
+                    <td>05h</td>
+                    <td>&lt;any&gt;</td>
+                    <td>01h</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h5>Response</h5>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Simple Response</th>
+                </tr>
+            </thead>
+        </table>
+
+        <p>This allows you to retrieve the application configuration block that is set aside for exclusive use by applications.</p>
+
+        <h4>Get Chassis ID – 07h</h4>
+
+        <h5>Command</h5>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>DID</th>
+                    <th>CID</th>
+                    <th>SEQ</th>
+                    <th>DLEN</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>02h</td>
+                    <td>07h</td>
+                    <td>&lt;any&gt;</td>
+                    <td>01h</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h5>Response</h5>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>DLEN</th>
+                    <th>CHASSIS ID</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>03h</td>
+                    <td>&lt;16-bit val&gt;</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <p>Returns the Chassis ID, a 16-bit value, which was set at the factory.</p>
+
+        <h4>Set Chassis ID – 08h</h4>
+
+        <h5>Command</h5>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>DID</th>
+                    <th>CID</th>
+                    <th>SEQ</th>
+                    <th>DLEN</th>
+                    <td>CHASSIS ID</td>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>02h</td>
+                    <td>08h</td>
+                    <td>&lt;any&gt;</td>
+                    <td>03h</td>
+                    <td>&lt;16-bit val&gt;</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h5>Response</h5>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Simple Response</th>
+                </tr>
+            </thead>
+        </table>
+
+        <p>Assigns the Chassis ID, a 16-bit value. This command only works if you&#39;re at the factory.</p>
+
+        <h4>Self Level – 09h</h4>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>DID</th>
+                    <th>CID</th>
+                    <th>SEQ</th>
+                    <th>DLEN</th>
+                    <th>Options</th>
+                    <th>Angle Limit</th>
+                    <th>Timeout</th>
+                    <th>True Time</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>02h</td>
+                    <td>09h</td>
+                    <td>&lt;any&gt;</td>
+                    <td>05h</td>
+                    <td>&lt;byte&gt;</td>
+                    <td>&lt;byte&gt;</td>
+                    <td>&lt;byte&gt;</td>
+                    <td>&lt;byte&gt;</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <p>This command controls the self level routine. The self level routine attempts to achieve a horizontal orientation where pitch and roll angles are less than the provided Angle Limit. After both angle limits are satisfied, option bits control sleep, final angle (heading), and control system on/off. An asynchronous message is returned when the self level routine completes (only when started by API call). The required parameters are:</p>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Value</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        Start/Stop <br>
+                        Final Angle  <br>
+                        Sleep <br>
+                        Control System
+                    </td>
+                    <td>
+                        Bit 0 <br>
+                        Bit 1 <br>
+                        Bit 2 <br>
+                        Bit 3
+                    </td>
+                    <td>
+                        0 aborts the routine if in progress. 1 starts the routine. <br>
+                        0 just stops. 1 rotates to heading equal to beginning heading. <br>
+                        0 stays awake after leveling. 1 goes to sleep after leveling. <br>
+                        0 leaves control system off. 1 leaves control system on (after leveling).
+                    </td>
+                </tr>
+                <tr>
+                    <td>Angle Limit</td>
+                    <td>
+                        0 <br>
+                        1 to 90
+                    </td>
+                    <td>
+                        Use the default value <br>
+                        Set the max angle for completion (in degrees)
+                    </td>
+                </tr>
+                <tr>
+                    <td>Timeout</td>
+                    <td>
+                        0 <br>
+                        1 to 255
+                    </td>
+                    <td>
+                        Use the default value <br>
+                        Set maximum seconds to run the routine
+                    </td>
+                </tr>
+                <tr>
+                    <td>True Time</td>
+                    <td>
+                        0 <br>
+                        1 to 255
+                    </td>
+                    <td>
+                        Use the default value <br>
+                        Set the required “test for levelness” time to 10*True Time (in milliseconds)
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <p>
+            Default values are: Angle = 3, Timeout = 15, True Time = 30 (300 milliseconds)
+            True Time*10 specifies the number of milliseconds that the pitch and roll angles must remain below the Angle Limit after the routine completes. If one of the values exceeds the Angle Limit, the ball will self level again and the accuracy timer will start again from 0.
+        </p>
+
+        <h5>Response</h5>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Simple Response</th>
+                </tr>
+            </thead>
+        </table>
+
+        <p>The complete self level asynchronous response message is of the form:</p>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>SOP1</th>
+                    <th>SOP2</th>
+                    <th>CODE</th>
+                    <th>DLEN-MSB</th>
+                    <th>DLEN_LSB</th>
+                    <th>data</th>
+                    <th>CHK</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>FFh</td>
+                    <td>FEh</td>
+                    <td>0Bh</td>
+                    <td>00h</td>
+                    <td>02h</td>
+                    <td>result</td>
+                    <td>&lt;cmp&gt;</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <p>
+            The result byte can be:
+            <table>
+                <tbody>
+                    <tr>
+                        <td>00h</td>
+                        <td>Unknown</td>
+                    </tr>
+                    <tr>
+                        <td>01h</td>
+                        <td>Timed Out (level was not achieved)</td>
+                    </tr>
+                    <tr>
+                        <td>02h</td>
+                        <td>Sensors Error</td>
+                    </tr>
+                    <tr>
+                        <td>03h</td>
+                        <td>Self Level Disabled (see Option Flags)</td>
+                    </tr>
+                    <tr>
+                        <td>04h</td>
+                        <td>Aborted (by API call)</td>
+                    </tr>
+                    <tr>
+                        <td>05h</td>
+                        <td>Charger not found</td>
+                    </tr>
+                    <tr>
+                        <td>06h</td>
+                        <td>Success</td>
+                    </tr>
+                </tbody>
+            </table>
+        </p>
+
+        <h6>Self Level Angle Accuracy</h6>
+
+        <p>We have found that the real angle lags a bit behind the measured angle. Also, the angles may shift some after “level” is achieved as the motors stop and the system comes to a rest. A True Time value of 30 (300 milliseconds) is generally good enough to keep the angles within a degree or two of the specified Angle Limit. If greater accuracy is required the True Time value can be increased up to 255 (2.55 seconds).</p>
+
+        <h6>Control System On/Off</h6>
+
+        <p>When the control system is off, obviously self leveling can not happen. There are several paths to this state:</p>
+
+        <ul>
+            <li>If the sensors are determined to be in an error state, self leveling will be skipped. Sleep requests will still trigger the go to sleep routine.</li>
+            <li>The control system can be turned off using the “Set Stabilization” API call. This is used for certain games where Sphero is held in the hand as a controller.</li>
+            <li>The control system can be turned off by a macro.</li>
+            <li>The control system can be turned off using the shell command “l0”.</li>
+            <li>The control system can be turned off using the shell command “x11”.</li>
+            <li>The control system can be turned off through an orbBasic program.</li>
+        </ul>
+
+        <p>When self level is called, leveling is skipped if the sensors are dead, as there is no recourse to this. For all the other cases, the self level routine runs. Since we have the System Options Flag to disable the self level routine, it is easy to override this behavior. Use the control system on/off bit to specify whether to leave the control system on or off after the self level routine is complete.</p>
+
+        <p>The current behavior is if a macro or orbBasic program is running and the ball starts charging, the self level routine runs (but it doesn&#39;t go to sleep). This could be desired behavior for some programs.</p>
+
+        <h6>System Options Flag</h6>
+
+        <p>Refer to <code>DID 02h, CID 35h</code> for details. Sleep requests made using <em>this</em> self level API call while the disable flag is asserted will still cause the ball to go to sleep.</p>
+
+        <h4>Set Data Streaming – 11h</h4>
+
+        <h5>Command</h5>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>DID</th>
+                    <th>CID</th>
+                    <th>SEQ</th>
+                    <th>DLEN</th>
+                    <th>N</th>
+                    <th>M</th>
+                    <th>MASK</th>
+                    <th>PCNT</th>
+                    <th>MASK2</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>02h</td>
+                    <td>11h</td>
+                    <td>&lt;any&gt;</td>
+                    <td>0ah or 0eh</td>
+                    <td>16-bit val</td>
+                    <td>16-bit val</td>
+                    <td>32-bit val</td>
+                    <td>8-bit val</td>
+                    <td>32-bit val</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h5>Response</h5>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Simple Response</th>
+                </tr>
+            </thead>
+        </table>
+
+        <p>Sphero supports asynchronous data streaming of certain control system and sensor parameters. This command selects the internal sampling frequency, packet size, parameter mask and optionally, the total number of packets.</p>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>param</th>
+                    <th>description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>N</td>
+                    <td>Divisor of the maximum sensor sampling rate</td>
+                </tr>
+                <tr>
+                    <td>M</td>
+                    <td>Number of sample frames emitted per packet</td>
+                </tr>
+                <tr>
+                    <td>MASK</td>
+                    <td>Bitwise selector of data sources to stream</td>
+                </tr>
+                <tr>
+                    <td>PCNT</td>
+                    <td>Packet count 1-255 (or 0 for unlimited streaming)</td>
+                </tr>
+                <tr>
+                    <td>MASK2</td>
+                    <td>Bitwise selector of more data sources to stream (optional)</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <p>MASK and PCNT are pretty obvious but the N, M terms bear a little more explanation. Currently the control system runs at 400Hz and because it&#39;s pretty unlikely you will want to see data at that rate, N allows you to divide that down. N = 2 yields data samples at 200Hz, N = 10, 40Hz, etc. Every data sample consists of a &quot;frame&quot; made up of the individual sensor values as defined by the MASK. The M value defines how many frames to collect in memory before the packet is emitted. In this sense, it controls the latency of the data you receive. Increasing N and the number of bits set in MASK drive the required throughput. You should experiment with different values of N, M and MASK to see what works best for you.</p>
+
+        <p>The MASK2 bitfield was added to extend MASK when we developed more than 32 data sources. The API processor is implemented so that this value is optional; if it isn&#39;t included then all of its bits are set to zero. (Added in FW 1.15)</p>
+
+        <p>Each parameter is returned as a 16-bit signed integer. The table below defines the bits in MASK to those parameters with the indicated ranges and units. If the command is issued with a MASK of zero, then data streaming is disabled.</p>
+
+        <table>
+            <thead>
+                <tr>
+                    <th colspan="4">MASK</th>
+                </tr>
+                <tr>
+                    <th>bit</th>
+                    <th>sensor</th>
+                    <th>range</th>
+                    <th>units/LSB</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>8000 0000h</code></td>
+                    <td>accelerometer axis X, raw</td>
+                    <td>-2048 to 2047</td>
+                    <td>4mG</td>
+                </tr>
+                <tr>
+                    <td><code>4000 0000h</code></td>
+                    <td>accelerometer axis Y, raw</td>
+                    <td>-2048 to 2047</td>
+                    <td>4mG</td>
+                </tr>
+                <tr>
+                    <td><code>2000 0000h</code></td>
+                    <td>accelerometer axis Z, raw</td>
+                    <td>-2048 to 2047</td>
+                    <td>4mG</td>
+                </tr>
+                <tr>
+                    <td><code>1000 0000h</code></td>
+                    <td>gyro axis X, raw</td>
+                    <td>-32768 to 32767</td>
+                    <td>0.068 degrees</td>
+                </tr>
+                <tr>
+                    <td><code>0800 0000h</code></td>
+                    <td>gyro axis Y, raw</td>
+                    <td>-32768 to 32767</td>
+                    <td>0.068 degrees</td>
+                </tr>
+                <tr>
+                    <td><code>0400 0000h</code></td>
+                    <td>gyro axis Z, raw</td>
+                    <td>-32768 to 32767</td>
+                    <td>0.068 degrees</td>
+                </tr>
+                <tr>
+                    <td><code>0200 0000h</code></td>
+                    <td>Reserved</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td><code>0100 0000h</code></td>
+                    <td>Reserved</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td><code>0080 0000h</code></td>
+                    <td>Reserved</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td><code>0040 0000h</code></td>
+                    <td>right motor back EMF, raw</td>
+                    <td>-32768 to 32767</td>
+                    <td>22.5 cm</td>
+                </tr>
+                <tr>
+                    <td><code>0020 0000h</code></td>
+                    <td>left motor back EMF, raw</td>
+                    <td>-32768 to 32767</td>
+                    <td>22.5 cm</td>
+                </tr>
+                <tr>
+                    <td><code>0010 0000h</code></td>
+                    <td>left motor, PWM, raw</td>
+                    <td>-2048 to 2047</td>
+                    <td>duty cycle</td>
+                </tr>
+                <tr>
+                    <td><code>0008 0000h</code></td>
+                    <td>right motor, PWM raw</td>
+                    <td>-2048 to 2047</td>
+                    <td>duty cycle</td>
+                </tr>
+                <tr>
+                    <td><code>0004 0000h</code></td>
+                    <td>IMU pitch angle, filtered</td>
+                    <td>-179 to 180</td>
+                    <td>degrees</td>
+                </tr>
+                <tr>
+                    <td><code>0002 0000h</code></td>
+                    <td>IMU roll angle, filtered</td>
+                    <td>-179 to 180</td>
+                    <td>degrees</td>
+                </tr>
+                <tr></tr>
+                <tr>
+                    <td><code>0001 0000h</code></td>
+                    <td>IMU yaw angle, filtered</td>
+                    <td>-179 to 180</td>
+                    <td>degrees</td>
+                </tr>
+                <tr>
+                    <td><code>0000 8000h</code></td>
+                    <td>accelerometer axis X, filtered</td>
+                    <td>-32768 to 32767</td>
+                    <td>1/4096 G</td>
+                </tr>
+                <tr>
+                    <td><code>0000 4000h</code></td>
+                    <td>accelerometer axis Y, filtered</td>
+                    <td>-32768 to 32767</td>
+                    <td>1/4096 G</td>
+                </tr>
+                <tr>
+                    <td><code>0000 2000h</code></td>
+                    <td>accelerometer axis Z, filtered</td>
+                    <td>-32768 to 32767</td>
+                    <td>1/4096 G</td>
+                </tr>
+                <tr>
+                    <td><code>0000 1000h</code></td>
+                    <td>gyro axis X, filtered</td>
+                    <td>-20000 to 20000</td>
+                    <td>0.1 dps</td>
+                </tr>
+                <tr>
+                    <td><code>0000 0800h</code></td>
+                    <td>gyro axis Y, filtered</td>
+                    <td>-20000 to 20000</td>
+                    <td>0.1 dps</td>
+                </tr>
+                <tr>
+                    <td><code>0000 0400h</code></td>
+                    <td>gyro axis Z, filtered</td>
+                    <td>-20000 to 20000</td>
+                    <td>0.1 dps</td>
+                </tr>
+                <tr>
+                    <td><code>0000 0200h</code></td>
+                    <td>Reserved</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td><code>0000 0100h</code></td>
+                    <td>Reserved</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td><code>0000 0080h</code></td>
+                    <td>Reserved</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td><code>0000 0040h</code></td>
+                    <td>right motor back EMF, filtered</td>
+                    <td>-32768 to 32767</td>
+                    <td>22.5 cm</td>
+                </tr>
+                <tr>
+                    <td><code>0000 0020h</code></td>
+                    <td>left motor back EMF, filtered</td>
+                    <td>-32768 to 32767</td>
+                    <td>22.5 cm</td>
+                </tr>
+                <tr>
+                    <td><code>0000 0010h</code></td>
+                    <td>Reserved 1</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td><code>0000 0008h</code></td>
+                    <td>Reserved 2</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td><code>0000 0004h</code></td>
+                    <td>Reserved 3</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td><code>0000 0002h</code></td>
+                    <td>Reserved 4</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td><code>0000 0001h</code></td>
+                    <td>Reserved 5</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <table>
+            <thead>
+                <tr><th colspan="4">MASK2</th></tr>
+                <tr>
+                    <th>bit</th>
+                    <th>sensor</th>
+                    <th>range</th>
+                    <th>units</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>8000 0000h</td>
+                    <td>Quaternion Q0</td>
+                    <td>-10000 to 10000</td>
+                    <td>1/10000 Q</td>
+                </tr>
+                <tr>
+                    <td>4000 0000h</td>
+                    <td>Quaternion Q1</td>
+                    <td>-10000 to 10000</td>
+                    <td>1/10000 Q</td>
+                </tr>
+                <tr>
+                    <td>2000 0000h</td>
+                    <td>Quaternion Q2</td>
+                    <td>-10000 to 10000</td>
+                    <td>1/10000 Q</td>
+                </tr>
+                <tr>
+                    <td>1000 0000h</td>
+                    <td>Quaternion Q3</td>
+                    <td>-10000 to 10000</td>
+                    <td>1/10000 Q</td>
+                </tr>
+                <tr>
+                    <td>0800 0000h</td>
+                    <td>Odometer X</td>
+                    <td>-32768 to 32767</td>
+                    <td>cm</td>
+                </tr>
+                <tr>
+                    <td>0400 0000h</td>
+                    <td>Odometer Y</td>
+                    <td>-32768 to 32767</td>
+                    <td>cm</td>
+                </tr>
+                <tr>
+                    <td>0200 0000h</td>
+                    <td>AccelOne</td>
+                    <td>0 to 8000</td>
+                    <td>1 mG</td>
+                </tr>
+                <tr>
+                    <td>0100 0000h</td>
+                    <td>Velocity X</td>
+                    <td>-32768 to 32767</td>
+                    <td>mm/s</td>
+                </tr>
+                <tr>
+                    <td>0080 0000h</td>
+                    <td>Velocity Y</td>
+                    <td>-32768 to 32767</td>
+                    <td>mm/s</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h4>Configure Collision Detection – 12h</h4>
+
+        <h5>Command</h5>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>DID</th>
+                    <th>CID</th>
+                    <th>SEQ</th>
+                    <th>DLEN</th>
+                    <th>Meth</th>
+                    <th>Xt</th>
+                    <th>Xspd</th>
+                    <th>Yt</th>
+                    <th>Yspd</th>
+                    <th>Dead</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>02h</td>
+                    <td>12h</td>
+                    <td>&lt;any&gt;</td>
+                    <td>07h</td>
+                    <td>&lt;val&gt;</td>
+                    <td>&lt;val&gt;</td>
+                    <td>&lt;val&gt;</td>
+                    <td>&lt;val&gt;</td>
+                    <td>&lt;val&gt;</td>
+                    <td>&lt;val&gt;</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h5>Response</h5>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Simple Response</th>
+                </tr>
+            </thead>
+        </table>
+
+        <p>Sphero contains a powerful analysis function to filter accelerometer data in order to detect collisions. Because this is a great example of a high-level concept that humans excel and – but robots do not – a number of parameters control the behavior. When a collision is detected an asynchronous message is generated to the client . The configuration fields are defined as follows:</p>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Param</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Meth</td>
+                    <td>Detection method type to use. Currently the only method supported is 01h. Use 00h to completely disable this service.</td>
+                </tr>
+                <tr>
+                    <td>Xt, Yt</td>
+                    <td>An 8-bit settable threshold for the X (left/right) and Y (front/back) axes of Sphero. A value of 00h disables the contribution of that axis.</td>
+                </tr>
+                <tr>
+                    <td>Xspd, Yspd</td>
+                    <td>An 8-bit settable speed value for the X and Y axes. This setting is ranged by the speed, then added to Xt, Yt to generate the final threshold value.</td>
+                </tr>
+                <tr>
+                    <td>Dead</td>
+                    <td>An 8-bit post-collision dead time to prevent retriggering; specified in 10ms increments.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <p>The data payload of the async message is 10h bytes long and formatted as follows:</p>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>X</th>
+                    <th>Y</th>
+                    <th>Z</th>
+                    <th>Axis</th>
+                    <th>xMagnitude</th>
+                    <th>yMagnitude</th>
+                    <th>Speed</th>
+                    <th>Timestamp</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>&lt;16-bit val&gt;</td>
+                    <td>&lt;16-bit val&gt;</td>
+                    <td>&lt;16-bit val&gt;</td>
+                    <td>&lt;8-bit field&gt;</td>
+                    <td>&lt;16-bit val&gt;</td>
+                    <td>&lt;16-bit val&gt;</td>
+                    <td>&lt;8-bit val&gt;</td>
+                    <td>&lt;32-bit val&gt;</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Param</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>X, Y, Z</td>
+                    <td>Impact components normalized as a signed 16-bit value. Use these to determine the direction of collision event. If you don't require this level of fidelity, the two Magnitude fields encapsulate the same data in pre-processed format.</td>
+                </tr>
+                <tr>
+                    <td>Axis</td>
+                    <td>This bitfield specifies which axes had their trigger thresholds exceeded to generate the event. Bit 0 (01h) signifies the X axis and bit 1 (02h) the Y axis.</td>
+                </tr>
+                <tr>
+                    <td>xMagnitude</td>
+                    <td>This is the power that crossed the programming threshold Xt + Xs.</td>
+                </tr>
+                <tr>
+                    <td>yMagnitude</td>
+                    <td>This is the power that crossed the programming threshold Yt + Ys.</td>
+                </tr>
+                <tr>
+                    <td>Speed</td>
+                    <td>The speed of Sphero when the impact was detected.</td>
+                </tr>
+                <tr>
+                    <td>Timestamp</td>
+                    <td>The millisecond timer value at the time of impact; refer to the documentation of CID 50h and 51h to make sense of this value.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <p>For additional information, refer to SPAN01, &quot;Sphero Collision Detection Feature.&quot; Note also that this feature relies on the accelerometer range being set to ±8Gs; if altered with the next command then don&#39;t count on it working in a useful way.</p>
+
+        <h4>Configure Locator – 13h</h4>
+
+        <h5>Command</h5>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>DID</th>
+                    <th>CID</th>
+                    <th>SEQ</th>
+                    <th>DLEN</th>
+                    <th>Flags</th>
+                    <th>X</th>
+                    <th>Y</th>
+                    <th>Yaw Tare</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>02h</td>
+                    <td>13h</td>
+                    <td>&lt;any&gt;</td>
+                    <td>02h</td>
+                    <td>&lt;8 bit val&gt;</td>
+                    <td>&lt;16 bit signed val&gt;</td>
+                    <td>&lt;16 bit signed val&gt;</td>
+                    <td>&lt;16 bit signed val&gt;</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h5>Response</h5>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Simple Response</th>
+                </tr>
+            </thead>
+        </table>
+
+        <p>Through the streaming interface, Sphero provides real-time location data in the form of (X,Y) coordinates on the ground plane. When Sphero wakes up it has coordinates (0,0) and heading 0, which corresponds to facing down the positive Y-axis with the positive X-axis to your right. This command allows you to move Sphero to a new location and change the alignment of locator coordinates with IMU headings.</p>
+
+        <p>When Sphero receives a Set Heading command it changes which direction corresponds to heading 0. By default, the locator compensates for this by modifying its value for yaw tare so that the Y-axis is still pointing in the same real-world direction. For instance, if you wake up Sphero and drive straight, you will be driving down the Y-axis. If you use the Set Heading feature in the drive app to turn 90 degrees, you will still have heading 0, but the locator knows you have turned 90 degrees and are now facing down the X-axis. This feature can be turned off, in which case the locator knows nothing about the Set Heading command. This can lead to some strange results. For instance, if you drive using only roll commands with heading 0 and set heading commands to change direction the locator will perceive your entire path as lying on the Y-axis.</p>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Parameters</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Flags</td>
+                    <td>Bit 0 – Determines whether calibrate commands automatically correct the yaw tare value. When false, the positive Y axis coincides with heading 0 (assuming you do not change the yaw tare manually using this API command). <br> Other Bits - Reserved</td>
+                </tr>
+                <tr>
+                    <td>X, Y</td>
+                    <td>The current (X,Y) coordinates of Sphero on the ground plane in centimeters.</td>
+                </tr>
+                <tr>
+                    <td>Yaw Tare</td>
+                    <td>Controls how the X,Y-plane is aligned with Sphero’s heading coordinate system. When this parameter is set to zero, it means that having yaw = 0 corresponds to facing down the Y- axis in the positive direction. The value will be interpreted in the range 0-359 inclusive.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h4>Set Accelerometer Range – 14h</h4>
+
+        <h5>Command</h5>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>DID</th>
+                    <th>CID</th>
+                    <th>SEQ</th>
+                    <th>DLEN</th>
+                    <th>Range Idx</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>02h</td>
+                    <td>14h</td>
+                    <td>&lt;any&gt;</td>
+                    <td>02h</td>
+                    <td>&lt;8 bit val&gt;</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h5>Response</h5>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Simple Response</th>
+                </tr>
+            </thead>
+        </table>
+
+        <p>Normally, Sphero&#39;s solid state accelerometer is set for a range of ±8Gs. There may be times when you would like to alter this, say to resolve finer accelerations. This command takes an index for the supported range as explained below.</p>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Idx</th>
+                    <th>Range</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>0</td>
+                    <td>±2Gs</td>
+                </tr>
+                <tr>
+                    <td>1</td>
+                    <td>±4Gs</td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td>±8Gs (default)</td>
+                </tr>
+                <tr>
+                    <td>3</td>
+                    <td>±16Gs</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <p>Note that setting this to other than the default value will have indeterminate consequences for driving and collision detection; you shouldn&#39;t expect either to work.</p>
+
+        <h4>Read Locator – 15h</h4>
+
+        <h5>Command</h5>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>DID</th>
+                    <th>CID</th>
+                    <th>SEQ</th>
+                    <th>DLEN</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>02h</td>
+                    <td>15h</td>
+                    <td>&lt;any&gt;</td>
+                    <td>01h</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h5>Response</h5>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>DLEN</th>
+                    <th>XPOS</th>
+                    <th>YPOS</th>
+                    <th>XVEL</th>
+                    <th>YVEL</th>
+                    <th>SOG</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>0Bh</td>
+                    <td>&lt;16 bit val&gt;</td>
+                    <td>&lt;16 bit val&gt;</td>
+                    <td>&lt;16 bit val&gt;</td>
+                    <td>&lt;16 bit val&gt;</td>
+                    <td>&lt;16 bit val&gt;</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <p>This reads Sphero&#39;s current position (X,Y), component velocities and SOG (speed over ground). The position is a signed value in centimeters, the component velocities are signed cm/sec while the SOG is unsigned cm/sec.</p>
+
+        <h4>Set RGB LED Output – 20h</h4>
+
+        <h5>Command</h5>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>DID</th>
+                    <th>CID</th>
+                    <th>SEQ</th>
+                    <th>DLEN</th>
+                    <th>RED</th>
+                    <th>GREEN</th>
+                    <th>BLUE</th>
+                    <th>FLAG</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>02h</td>
+                    <td>20h</td>
+                    <td>&lt;any&gt;</td>
+                    <td>05h</td>
+                    <td>&lt;value&gt;</td>
+                    <td>&lt;value&gt;</td>
+                    <td>&lt;value&gt;</td>
+                    <td>&lt;bool&gt;</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h5>Response</h5>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Simple Response</th>
+                </tr>
+            </thead>
+        </table>
+
+        <p>This allows you to set the RGB LED color. The composite value is stored as the &quot;application LED color&quot; and immediately driven to the LED (if not overridden by a macro or orbBasic operation). If FLAG is true, the value is also saved as the &quot;user LED color&quot; which persists across power cycles and is rendered in the gap between an application connecting and sending this command.</p>
+
+        <h4>Set Back LED Output – 21h</h4>
+
+        <h5>Command</h5>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>DID</th>
+                    <th>CID</th>
+                    <th>SEQ</th>
+                    <th>DLEN</th>
+                    <th>BRIGHT</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>02h</td>
+                    <td>21h</td>
+                    <td>&lt;any&gt;</td>
+                    <td>02h</td>
+                    <td>&lt;value&gt;</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h5>Response</h5>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Simple Response</th>
+                </tr>
+            </thead>
+        </table>
+
+        <p>This allows you to control the brightness of the back LED. The value does not persist across power cycles.</p>
+
+        <h4>Get RGB LED – 22h</h4>
+
+        <h5>Command</h5>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>DID</th>
+                    <th>CID</th>
+                    <th>SEQ</th>
+                    <th>DLEN</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>02h</td>
+                    <td>22h</td>
+                    <td>&lt;any&gt;</td>
+                    <td>01h</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h5>Response</h5>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>DLEN</th>
+                    <th>RED</th>
+                    <th>GREEN</th>
+                    <th>BLUE</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>04h</td>
+                    <td>&lt;value&gt;</td>
+                    <td>&lt;value&gt;</td>
+                    <td>&lt;value&gt;</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <p>This retrieves the &quot;user LED color&quot; which is stored in the config block (which may or may not be actively driven to the RGB LED).</p>
+
+        <h4>Roll – 30h</h4>
+
+        <h5>Command</h5>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>DID</th>
+                    <th>CID</th>
+                    <th>SEQ</th>
+                    <th>DLEN</th>
+                    <th>Speed</th>
+                    <th>Heading</th>
+                    <th>Heading</th>
+                    <th>STATE</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>02h</td>
+                    <td>30h</td>
+                    <td>&lt;any&gt;</td>
+                    <td>05h</td>
+                    <td>&lt;val&gt;</td>
+                    <td>&lt;msb&gt;</td>
+                    <td>&lt;lsb&gt;</td>
+                    <td>&lt;val&gt;</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h5>Response</h5>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Simple Response</th>
+                </tr>
+            </thead>
+        </table>
+
+        <p>This commands Sphero to roll along the provided vector. Both a speed and a heading are required; the latter is considered relative to the last calibrated direction. A state value is also provided. In the CES firmware, this was used to gate the control system to either obey the roll vector or ignore it and apply optimal braking to zero speed. Please refer to Appendix C for detailed information.</p>
+
+        <p>The client convention for heading follows the 360 degrees on a circle, relative to the ball: 0 is straight ahead, 90 is to the right, 180 is back and 270 is to the left. The valid range is 0..359.</p>
+
+        <h4>Set Boost With Time – 31h (Not Currently Supported)</h4>
+
+        <h5>Command</h5>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>DID</th>
+                    <th>CID</th>
+                    <th>SEQ</th>
+                    <th>DLEN</th>
+                    <th>TIME</th>
+                    <th>HEADING</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>02h</td>
+                    <td>31h</td>
+                    <td>&lt;any&gt;</td>
+                    <td>04h</td>
+                    <td>&lt;val&gt;</td>
+                    <td>16-bit val</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h5>Response</h5>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Simple Response</th>
+                </tr>
+            </thead>
+        </table>
+
+        <p>This commands Sphero to meet the provided heading, disable stabilization and ramp the motors up to full-speed for a period of time. The Time parameter is the duration in tenths of a second. Setting it to zero enables constant boost until a Set Stabilization command is received.</p>
+
+        <h4>Set Raw Motor Values – 33h</h4>
+
+        <h5>Command</h5>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>DID</th>
+                    <th>CID</th>
+                    <th>SEQ</th>
+                    <th>DLEN</th>
+                    <th>L-MODE</th>
+                    <th>L-POWER</th>
+                    <th>R-MODE</th>
+                    <th>R-POWER</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>02h</td>
+                    <td>33h</td>
+                    <td>&lt;any&gt;</td>
+                    <td>05h</td>
+                    <td>&lt;val&gt;</td>
+                    <td>&lt;val&gt;</td>
+                    <td>&lt;val&gt;</td>
+                    <td>&lt;val&gt;</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h5>Response</h5>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Simple Response</th>
+                </tr>
+            </thead>
+        </table>
+
+        <p>This allows you to take over one or both of the motor output values, instead of having the stabilization system control them. Each motor (left and right) requires a mode (see below) and a power value from 0- 255. This command will disable stabilization if both modes aren&#39;t &quot;ignore&quot; so you&#39;ll need to re-enable it via CID 02h once you&#39;re done.</p>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>MODE</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>00h</td>
+                    <td>Off (motor is open circuit)</td>
+                </tr>
+                <tr>
+                    <td>01h</td>
+                    <td>Forward</td>
+                </tr>
+                <tr>
+                    <td>02h</td>
+                    <td>Reverse</td>
+                </tr>
+                <tr>
+                    <td>03h</td>
+                    <td>Brake (motor is shorted)</td>
+                </tr>
+                <tr>
+                    <td>04h</td>
+                    <td>Ignore (motor mode and power is left unchanged)</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h4>Set Motion Timeout – 34h</h4>
+
+        <h5>Command</h5>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>DID</th>
+                    <th>CID</th>
+                    <th>SEQ</th>
+                    <th>DLEN</th>
+                    <th>TIME</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>02h</td>
+                    <td>34h</td>
+                    <td>&lt;any&gt;</td>
+                    <td>03h</td>
+                    <td>16-bit val</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h5>Response</h5>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Simple Response</th>
+                </tr>
+            </thead>
+        </table>
+
+        <p>This sets the ultimate timeout for the last motion command to keep Sphero from rolling away in the case of a crashed (or paused) client app. The TIME parameter is expressed in milliseconds and defaults to 2000 upon wake-up.</p>
+
+        <p>If the control system is enabled, the timeout triggers a stop otherwise it commands zero PWM to both motors. This &quot;termination behavior&quot; is inhibited if a macro is running with the flag MF<em>EXCLUSIVE</em>DRV set, or an orbBasic program is executing with a similar flag, BF<em>EXCLUSIVE</em>DRV.</p>
+
+        <p>Note that you must enable this action by setting System Option Flag #4.</p>
+
+        <h4>Set Permanent Option Flags – 35h</h4>
+
+        <h5>Command</h5>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>DID</th>
+                    <th>CID</th>
+                    <th>SEQ</th>
+                    <th>DLEN</th>
+                    <th>FLAGS</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>02h</td>
+                    <td>35h</td>
+                    <td>&lt;any&gt;</td>
+                    <td>05h</td>
+                    <td>&lt;32-bit val&gt;</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h5>Response</h5>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Simple Response</th>
+                </tr>
+            </thead>
+        </table>
+
+        <p>Assigns the permanent option flags to the provided value and writes them to the config block for persistence across power cycles. See below for the bit definitions.</p>
+
+        <h4>Get Permanent Option Flags – 36h</h4>
+
+        <h5>Command</h5>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>DID</th>
+                    <th>CID</th>
+                    <th>SEQ</th>
+                    <th>DLEN</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>02h</td>
+                    <td>36h</td>
+                    <td>&lt;any&gt;</td>
+                    <td>01h</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h5>Response</h5>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>DLEN</th>
+                    <th>FLAGS</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>05h</td>
+                    <td>&lt;32-bit val&gt;</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <p>Returns the permanent option flags as a bitfield as defined below:</p>
+
+        <p>
+            <thead>
+                <tr>
+                    <th>bit #</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>0</td>
+                    <td>Set to prevent Sphero from immediately going to sleep when placed in the charger and connected over Bluetooth.</td>
+                </tr>
+                <tr>
+                    <td>1</td>
+                    <td>Set to enable Vector Drive, that is, when Sphero is stopped and a new roll command is issued it achieves the heading before moving along it.</td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td>Set to disable self-leveling when Sphero is inserted into the charger.</td>
+                </tr>
+                <tr>
+                    <td>3</td>
+                    <td>Set to force the tail LED always on.</td>
+                </tr>
+                <tr>
+                    <td>4</td>
+                    <td>Set to enable motion timeouts (see DID 02h, CID 34h)</td>
+                </tr>
+                <tr>
+                    <td>5</td>
+                    <td>Set to enable retail Demo Mode (when placed in the charger, ball runs a slow rainbow macro for 60 minutes and then goes to sleep).</td>
+                </tr>
+                <tr>
+                    <td>6-31</td>
+                    <td>Unassigned</td>
+                </tr>
+            </tbody>
+        </p>
+
+        <h4>Set Temporary Option Flags – 37h</h4>
+
+        <h5>Command</h5>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>DID</th>
+                    <th>CID</th>
+                    <th>SEQ</th>
+                    <th>DLEN</th>
+                    <th>FLAGS</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>02h</td>
+                    <td>37h</td>
+                    <td>&lt;any&gt;</td>
+                    <td>05h</td>
+                    <td>&lt;32-bit val&gt;</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h5>Response</h5>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Simple Response</th>
+                </tr>
+            </thead>
+        </table>
+
+        <p>Assigns the temporary option flags to the provided value. These do not persist across a power cycle. See below for the bit definitions.</p>
+
+        <h4>Get Temporary Option Flags – 38h</h4>
+
+        <h5>Command</h5>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>DID</th>
+                    <th>CID</th>
+                    <th>SEQ</th>
+                    <th>DLEN</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>02h</td>
+                    <td>38h</td>
+                    <td>&lt;any&gt;</td>
+                    <td>01h</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h5>Response</h5>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>DLEN</th>
+                    <th>FLAGS</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>05h</td>
+                    <td>&lt;32-bit val&gt;</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <p>Returns the temporary option flags as a bitfield as defined below:</p>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>bit #</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>0</td>
+                    <td>Enable Stop On Disconnect behavior: when the Bluetooth link transitions from connected to disconnected, Sphero is commanded to stop rolling. This is ignored if a macro or orbBasic program is running though both have option flags to allow this during their execution. This flag is cleared after it is obeyed, thus it is a one-shot.</td>
+                </tr>
+                <tr>
+                    <td>1-31</td>
+                    <td>Unassigned, return zero</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h4>Get Configuration Block – 40h</h4>
+
+        <h5>Command</h5>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>DID</th>
+                    <th>CID</th>
+                    <th>SEQ</th>
+                    <th>DLEN</th>
+                    <th>ID</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>02h</td>
+                    <td>40h</td>
+                    <td>&lt;any&gt;</td>
+                    <td>02h</td>
+                    <td>value</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h5>Response</h5>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Simple Response</th>
+                </tr>
+            </thead>
+        </table>
+
+        <p>This command retrieves one of the configuration blocks. The response is a simple one; an error code of 08h is returned when the resources are currently unavailable to send the requested block back. The actual configuration block data returns in an asynchronous message of type 04h due to its length (if there is no error).</p>
+
+        <p>Value = 00h requests the factory configuration block</p>
+
+        <p>Value = 01h requests the user configuration block, which is updated with current values first</p>
+
+        <h4>Set Device Mode – 42h</h4>
+
+        <h5>Command</h5>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>DID</th>
+                    <th>CID</th>
+                    <th>SEQ</th>
+                    <th>DLEN</th>
+                    <th>MODE</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>02h</td>
+                    <td>42h</td>
+                    <td>&lt;any&gt;</td>
+                    <td>02h</td>
+                    <td>value</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h5>Response</h5>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Simple Response</th>
+                </tr>
+            </thead>
+        </table>
+
+        <p>Assigns the operation mode of Sphero based on the supplied mode value:</p>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>MODE</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>00h</td>
+                    <td>Normal mode</td>
+                </tr>
+                <tr>
+                    <td>01h</td>
+                    <td>User Hack mode (see below)</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <p>User Hack mode enables ASCII shell commands; refer to the associated document for a detailed list of operations.</p>
+
+        <h4>Set Configuration Block – 43h</h4>
+
+        <h5>Command</h5>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>DID</th>
+                    <th>CID</th>
+                    <th>SEQ</th>
+                    <th>DLEN</th>
+                    <th>data</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>02h</td>
+                    <td>43h</td>
+                    <td>&lt;any&gt;</td>
+                    <td>FFh</td>
+                    <td>&lt;block&gt;</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h5>Response</h5>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Simple Response</th>
+                </tr>
+            </thead>
+        </table>
+
+        <p>This command accepts an exact copy of the configuration block and loads it into the RAM copy of the configuration block. Then the RAM copy is saved to flash. The configuration block can be obtained by using the Get Configuration Block command.</p>
+
+        <h4>Get Device Mode – 44h</h4>
+
+        <h5>Command</h5>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>DID</th>
+                    <th>CID</th>
+                    <th>SEQ</th>
+                    <th>DLEN</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>02h</td>
+                    <td>44h</td>
+                    <td>&lt;any&gt;</td>
+                    <td>01h</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h5>Response</h5>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>DLEN</th>
+                    <th>Mode</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>02h</td>
+                    <td>&lt;val&gt;</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <p>This returns the current device mode, 00h for Normal mode or 01h for User Hack mode.</p>
+
+        <h4>Run Macro – 50h</h4>
+
+        <h5>Command</h5>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>DID</th>
+                    <th>CID</th>
+                    <th>SEQ</th>
+                    <th>DLEN</th>
+                    <th>ID</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>02h</td>
+                    <td>50h</td>
+                    <td>&lt;any&gt;</td>
+                    <td>02h</td>
+                    <td>&lt;8-bit value&gt;</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h5>Response</h5>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Simple Response</th>
+                </tr>
+            </thead>
+        </table>
+
+        <p>This attempts to execute the specified macro. Macro IDs are organized into groups: 01 – 31 are System Macros, that is, they are compiled into the Main Application. As such they are always available to be run and cannot be deleted. Macro IDs 32 – 253 are User Macros that are downloaded and persistently stored. They can be deleted in total. Macro ID 255 is a special user macro called the Temporary Macro as it is held in RAM for execution. Macro ID 254 is also a special user macro called the Stream Macro that doesn&#39;t require this call to begin execution.</p>
+
+        <p>This command will fail if there is currently an executing macro or the specified ID Code isn&#39;t found. In the case of the former, send an abort command first.</p>
+
+        <h4>Save Temporary Macro – 51h</h4>
+
+        <h5>Command</h5>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>DID</th>
+                    <th>CID</th>
+                    <th>SEQ</th>
+                    <th>DLEN</th>
+                    <th>MACRO</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>02h</td>
+                    <td>51h</td>
+                    <td>&lt;any&gt;</td>
+                    <td>&lt;len + 1&gt;</td>
+                    <td>&lt;data&gt;</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h5>Response</h5>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Simple Response</th>
+                </tr>
+            </thead>
+        </table>
+
+        <p>This stores the attached macro definition into the temporary RAM buffer for later execution. Any existing macro ID can be sent through this command and it is then renamed to ID FFh. If this command is sent while a Temporary or Stream Macro is executing it will be terminated so that its storage space can be overwritten. As with all macros, the longest definition that can be sent is 254 bytes (thus requiring DLEN to be FFh).</p>
+
+        <p>You must follow this with a Run Macro command to begin execution.</p>
+
+        <h4>Save Macro – 52h</h4>
+
+        <h5>Command</h5>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>DID</th>
+                    <th>CID</th>
+                    <th>SEQ</th>
+                    <th>DLEN</th>
+                    <th>MACRO</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>02h</td>
+                    <td>52h</td>
+                    <td>&lt;any&gt;</td>
+                    <td>&lt;len + 1&gt;</td>
+                    <td>&lt;data&gt;</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h5>Response</h5>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Simple Response</th>
+                </tr>
+            </thead>
+        </table>
+
+        <p>This stores the attached macro definition into the persistent store for later execution. This command can be sent even if other macros are executing. You will receive a failure response if you attempt to send an ID number in the System Macro range, 255 for the Temp Macro and ID of an existing user macro in the storage block. As with all macros, the longest definition that can be sent is 254 bytes (thus requiring DLEN to be FFh).</p>
+
+        <p>A special case of this command is to start and continue execution of the Stream Macro, ID 254. If a Temporary Macro is running it will be terminated and the Stream Macro will begin. If a Stream Macro is already running, this chunk will be appended (if there is room). Stream Macros terminate via Abort or with a special END code. Refer to the Sphero Macro documentation for more detail.</p>
+
+        <h4>Reinit Macro Executive – 54h</h4>
+
+        <h5>Command</h5>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>DID</th>
+                    <th>CID</th>
+                    <th>SEQ</th>
+                    <th>DLEN</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>02h</td>
+                    <td>54h</td>
+                    <td>&lt;any&gt;</td>
+                    <td>01h</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h5>Response</h5>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Simple Response</th>
+                </tr>
+            </thead>
+        </table>
+
+        <p>This terminates any running macro and reinitializes the macro system. The table of any persistent user macros is cleared.</p>
+
+        <h4>Abort Macro – 55h</h4>
+
+        <h5>Command</h5>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>DID</th>
+                    <th>CID</th>
+                    <th>SEQ</th>
+                    <th>DLEN</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>02h</td>
+                    <td>55h</td>
+                    <td>&lt;any&gt;</td>
+                    <td>01h</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h5>Response</h5>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>DLEN</th>
+                    <th>ID</th>
+                    <th>Cmd Num</th>
+                    <th>Cmd Num</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>04h</td>
+                    <td>&lt;any&gt;</td>
+                    <td>&lt;msb&gt;</td>
+                    <td>&lt;lsb&gt;</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <p>This command aborts any executing macro and returns both its ID code and the command number currently in process. An exception is a System Macro that is executing with the UNKILLABLE flag set. A normal return code indicates the ID Code of the aborted macro as well as the command number at which execution was stopped. A return ID code of 00h indicates that no macro was running and an ID code with FFFFh as the CmdNum that the macro was unkillable.</p>
+
+        <h4>Get Macro Status – 56h</h4>
+
+        <h5>Command</h5>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>DID</th>
+                    <th>CID</th>
+                    <th>SEQ</th>
+                    <th>DLEN</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>02h</td>
+                    <td>56h</td>
+                    <td>&lt;any&gt;</td>
+                    <td>01h</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h5>Response</h5>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>DLEN</th>
+                    <th>ID</th>
+                    <th>Cmd Num</th>
+                    <th>Cmd Num</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>04h</td>
+                    <td>&lt;any&gt;</td>
+                    <td>&lt;msb&gt;</td>
+                    <td>&lt;lsb&gt;</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <p>This command returns the ID code and command number of the currently executing macro. If no macro is currently running, 00h is returned for the ID code while the command number is left over from the last macro.</p>
+
+        <h4>Set Macro Parameter – 57h</h4>
+
+        <h5>Command</h5>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>DID</th>
+                    <th>CID</th>
+                    <th>SEQ</th>
+                    <th>DLEN</th>
+                    <th>Param</th>
+                    <th>Val1</th>
+                    <th>Val2</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>02h</td>
+                    <td>57h</td>
+                    <td>&lt;any&gt;</td>
+                    <td>04h</td>
+                    <td>&lt;idx&gt;</td>
+                    <td>&lt;any&gt;</td>
+                    <td>&lt;any&gt;</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h5>Response</h5>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Simple Response</th>
+                </tr>
+            </thead>
+        </table>
+
+        <p>This command allows system globals that influence certain macro commands to be selectively altered from outside of the macro system itself. The values of Val1 and Val2 depend on the parameter index.</p>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Index</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>00h</td>
+                    <td>Assign System Delay 1: Val1 = MSB, Val2 = LSB</td>
+                </tr>
+                <tr>
+                    <td>01h</td>
+                    <td>Assign System Delay 2: Val1 = MSB, Val2 = LSB</td>
+                </tr>
+                <tr>
+                    <td>02h</td>
+                    <td>Assign System Speed 1: Val1 = speed, Val2 = 0 (ignored)</td>
+                </tr>
+                <tr>
+                    <td>03h</td>
+                    <td>Assign System Speed 2: Val1 = speed, Val2 = 0 (ignored)</td>
+                </tr>
+                <tr>
+                    <td>04h</td>
+                    <td>Assign System Loops: Val1 = loop count, Val2 = 0 (ignored)</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <p>Details of what these system variables change are presented in the Sphero Macro document.</p>
+
+        <h4>Append Macro Chunk – 58h</h4>
+
+        <h5>Command</h5>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>DID</th>
+                    <th>CID</th>
+                    <th>SEQ</th>
+                    <th>DLEN</th>
+                    <th>MACRO Chunk</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>02h</td>
+                    <td>58h</td>
+                    <td>&lt;any&gt;</td>
+                    <td>&lt;len + 1&gt;</td>
+                    <td>&lt;data&gt;</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h5>Response</h5>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Simple Response</th>
+                </tr>
+            </thead>
+        </table>
+
+        <p>This stores the attached macro definition into the temporary RAM buffer for later execution. It is similar to the Save Temporary Macro call but allows you to build up longer temporary macros.</p>
+
+        <p>Any existing macro ID can be sent through this command and executed through the Run Macro call using ID FFh. If this command is sent while a Temporary or Stream Macro is executing it will be terminated so that its storage space can be overwritten. As with all macros, the longest chunk that can be sent is 254 bytes (thus requiring DLEN to be FFh).</p>
+
+        <p>You must follow this with a Run Macro command (ID FFh) to actually get it to go and it is best to prefix this command with an Abort call to make certain the larger buffer is completely initialized.</p>
+
+        <h4>Erase orbBasic Storage – 60h</h4>
+
+        <h5>Command</h5>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>DID</th>
+                    <th>CID</th>
+                    <th>SEQ</th>
+                    <th>DLEN</th>
+                    <th>Area</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>02h</td>
+                    <td>60h</td>
+                    <td>&lt;any&gt;</td>
+                    <td>02h</td>
+                    <td>&lt;val&gt;</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h5>Response</h5>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Simple Response</th>
+                </tr>
+            </thead>
+        </table>
+
+        <p>This erases any existing program in the specified storage area. Specify 00h for the temporary RAM buffer or 01h for the persistent storage area.</p>
+
+        <h4>Append orbBasic Fragment – 61h</h4>
+
+        <h5>Command</h5>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>DID</th>
+                    <th>CID</th>
+                    <th>SEQ</th>
+                    <th>DLEN</th>
+                    <th>Area</th>
+                    <th>Program Code</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>02h</td>
+                    <td>61h</td>
+                    <td>&lt;any&gt;</td>
+                    <td>&lt;val&gt;</td>
+                    <td>&lt;val&gt;</td>
+                    <td>&lt;any&gt;</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h5>Response</h5>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Simple Response</th>
+                </tr>
+            </thead>
+        </table>
+
+        <p>Sending an orbBasic program to Sphero involves appending blocks of text to existing ones in the specified storage area (00h for RAM, 01h for persistent). Complete lines are not required. A line begins with a decimal line number followed by a space and is terminated with a <lf>. See the orbBasic Interpreter document for complete information.</p>
+
+        <p>Possible error responses would be ORBOTIX<em>RSP</em>CODE<em>EPARAM if an illegal storage area is specified or ORBOTIX</em>RSP<em>CODE</em>EEXEC if the specified storage area is full.</p>
+
+        <h4>Execute orbBasic Program – 62h</h4>
+
+        <h5>Command</h5>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>DID</th>
+                    <th>CID</th>
+                    <th>SEQ</th>
+                    <th>DLEN</th>
+                    <th>Area</th>
+                    <th>Start Line</th>
+                    <th>Start Line</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>02h</td>
+                    <td>62h</td>
+                    <td>&lt;any&gt;</td>
+                    <td>04h</td>
+                    <td>&lt;val&gt;</td>
+                    <td>&lt;msb&gt;</td>
+                    <td>&lt;lsb&gt;</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h5>Response</h5>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Simple Response</th>
+                </tr>
+            </thead>
+        </table>
+
+        <p>This attempts to run a program in the specified storage area beginning at the specified line number. This command will fail if there is already an orbBasic program executing.</p>
+
+        <h4>Abort orbBasic Program – 63h</h4>
+
+        <h5>Command</h5>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>DID</th>
+                    <th>CID</th>
+                    <th>SEQ</th>
+                    <th>DLEN</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>02h</td>
+                    <td>63h</td>
+                    <td>&lt;any&gt;</td>
+                    <td>01h</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h5>Response</h5>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Simple Response</th>
+                </tr>
+            </thead>
+        </table>
+
+        <p>Aborts execution of any currently running orbBasic program.</p>
+
+        <h4>Submit Value to Input Statement – 64h</h4>
+
+        <h5>Command</h5>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>DID</th>
+                    <th>CID</th>
+                    <th>SEQ</th>
+                    <th>DLEN</th>
+                    <th>VAL</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>02h</td>
+                    <td>64h</td>
+                    <td>&lt;any&gt;</td>
+                    <td>05h</td>
+                    <td>(32-bit signed val)</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h5>Response</h5>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Simple Response</th>
+                </tr>
+            </thead>
+        </table>
+
+        <p>This takes the place of the typical user console in orbBasic and allows a user to answer an input request. If there is no pending input request when this API command is sent, the supplied value is ignored without error. Refer to the orbBasic language document for further information.</p>
+
+    </article>
+</body>
+</html>

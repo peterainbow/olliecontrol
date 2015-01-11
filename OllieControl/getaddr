@@ -1,0 +1,6 @@
+sudo hciconfig hci0 down
+sudo hciconfig hci0 up
+sudo hcitool lescan > addr.txt &
+sleep 5  
+sudo pkill --signal SIGINT hcitool
+
